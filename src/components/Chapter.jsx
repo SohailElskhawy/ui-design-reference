@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
+import { motion } from 'framer-motion'
 import { chapterIndex } from '../lib/content.js'
 import { t } from '../lib/ui.js'
+import { useReveal } from '../hooks/useReveal.js'
 import Section from './Section.jsx'
 import PrevNext from './PrevNext.jsx'
 
@@ -23,6 +25,9 @@ export function ChapterHeader({ chapter, lang }) {
 
 export default function Chapter({ chapter, lang, onActiveSection }) {
   const ref = useRef(null)
+  // Chapter root reveal. It re-mounts on every navigation (keyed by id in
+  // App.jsx), so this doubles as a soft page-transition on chapter change.
+  const reveal = useReveal()
 
   // Active-section tracking: the topmost section intersecting a band near the
   // top of the viewport wins.
@@ -51,12 +56,18 @@ export default function Chapter({ chapter, lang, onActiveSection }) {
   }, [chapter.id, onActiveSection])
 
   return (
-    <article ref={ref} className="mx-auto w-full max-w-prose">
+    <motion.article
+      ref={ref}
+      data-reveal
+      {...reveal}
+      className="mx-auto w-full max-w-prose"
+    >
       <ChapterHeader chapter={chapter} lang={lang} />
-      {chapter.sections.map((section) => (
-        <Section key={section.id} chapter={chapter} section={section} lang={lang} />
+      {chapter.sections.map((section, i) => (
+        // `index` drives the per-section stagger inside Section.jsx
+        <Section key={section.id} chapter={chapter} section={section} lang={lang} index={i} />
       ))}
       <PrevNext chapter={chapter} lang={lang} />
-    </article>
+    </motion.article>
   )
 }

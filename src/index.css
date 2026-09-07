@@ -50,6 +50,9 @@
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
+    /* Neutralise Framer Motion scroll-reveals for users who opt out of motion
+       (backs up the useReducedMotion() check in src/hooks/useReveal.js). */
+    [data-reveal] { opacity: 1 !important; transform: none !important; }
   }
   body {
     @apply bg-bg text-ink font-sans text-base antialiased;
@@ -188,4 +191,9 @@
     color: #000 !important;
   }
   .placeholder { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  /* Framer Motion leaves scroll-reveal blocks at opacity:0 until they enter
+     the viewport. On paper nothing scrolls, so force every revealed block
+     visible and drop the soft shadows (they don't belong in a PDF). */
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
+  .callout, .placeholder, figure > div { box-shadow: none !important; }
 }
