@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { chapters, chapterById } from './lib/content.js'
 import { useHashRoute, useLocalStorage } from './lib/hooks.js'
-import { STORAGE_KEYS, site } from './config.js'
+import { STORAGE_KEYS } from './config.js'
+import { useSEO } from './hooks/useSEO.js'
+import { stripMarkdown } from './lib/search.js'
 import { t } from './lib/ui.js'
 import { sectionDomId } from './components/Section.jsx'
 import TopBar from './components/TopBar.jsx'
@@ -10,12 +12,17 @@ import Chapter from './components/Chapter.jsx'
 import Search from './components/Search.jsx'
 import PrintView from './components/PrintView.jsx'
 
+// Arabic-first content platform. `lang` is kept as state so a language
+// switch can be re-introduced later; the default and the <html> attributes
+// below make Arabic the ground truth.
+const DEFAULT_LANG = 'ar'
+
 function prefersDark() {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
 export default function App() {
-  const [lang, setLang] = useLocalStorage(STORAGE_KEYS.lang, 'en')
+  const [lang, setLang] = useLocalStorage(STORAGE_KEYS.lang, DEFAULT_LANG)
   const [theme, setTheme] = useLocalStorage(STORAGE_KEYS.theme, prefersDark)
   const route = useHashRoute()
   const [activeSection, setActiveSection] = useState('')
@@ -25,21 +32,29 @@ export default function App() {
   const isPrint = route.chapter === 'print'
   const chapter = chapterById.get(route.chapter) ?? chapters[0]
 
-  // <html lang dir> + theme class
+  // 1) RTL + Arabic on <html>. Runs on mount (lang is 'ar' by default) and
+  //    stays in sync if a language toggle is ever added.
   useEffect(() => {
     const el = document.documentElement
     el.lang = lang
     el.dir = lang === 'ar' ? 'rtl' : 'ltr'
   }, [lang])
+
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
   }, [theme])
 
-  // Document title
-  useEffect(() => {
-    const page = isPrint ? t(lang, 'printView') : chapter?.title[lang]
-    document.title = page ? `${page} · ${site.title[lang]}` : site.title[lang]
-  }, [lang, chapter, isPrint])
+  // 2) Dynamic SEO for the current chapter, with siteConfig fallbacks.
+  useSEO(
+    isPrint
+      ? { title: t(lang, 'printView'), path: '/print', noindex: true }
+      : {
+          title: chapter?.title[lang],
+          description: stripMarkdown(chapter?.intro?.[lang]).slice(0, 160) || undefined,
+          path: chapter ? `/${chapter.id}` : '/',
+          type: 'article',
+        },
+  )
 
   // Scroll on navigation (chapter or section). route.n changes on every
   // navigation, including repeats of the same hash.
