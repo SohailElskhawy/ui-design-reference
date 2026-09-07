@@ -10,6 +10,7 @@ import TopBar from './components/TopBar.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import Chapter from './components/Chapter.jsx'
 import Search from './components/Search.jsx'
+import SelectionTooltip from './components/SelectionTooltip.jsx'
 import PrintView from './components/PrintView.jsx'
 
 // Arabic-first content platform. `lang` is kept as state so a language
@@ -133,6 +134,8 @@ export default function App() {
               <Chapter key={chapter.id} chapter={chapter} lang={lang} onActiveSection={onActiveSection} />
             </div>
           </main>
+          {/* Medium-style highlight → note tooltip, scoped to <main>. */}
+          <SelectionTooltip lang={lang} chapterId={chapter.id} />
         </>
       )}
 

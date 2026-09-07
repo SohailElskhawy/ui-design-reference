@@ -46,4 +46,5 @@ export const site = {
 export const STORAGE_KEYS = {
   lang: 'uiref:lang',
   theme: 'uiref:theme',
+  notes: 'uiref:notes',
 }

@@ -33,6 +33,12 @@ const strings = {
     keyboardSelect: 'Open',
     keyboardClose: 'Close',
     inChapter: 'in',
+    addNote: 'Note',
+    noteDialog: 'Add a note to the selected text',
+    notePlaceholder: 'Write a note…',
+    saveNote: 'Save',
+    noteSaved: 'Note saved',
+    cancel: 'Cancel',
   },
   ar: {
     contents: 'المحتويات',
@@ -67,6 +73,12 @@ const strings = {
     keyboardSelect: 'فتح',
     keyboardClose: 'إغلاق',
     inChapter: 'في',
+    addNote: 'ملاحظة',
+    noteDialog: 'أضف ملاحظة على النص المحدد',
+    notePlaceholder: 'اكتب ملاحظة…',
+    saveNote: 'حفظ',
+    noteSaved: 'تم حفظ الملاحظة',
+    cancel: 'إلغاء',
   },
 }
 
