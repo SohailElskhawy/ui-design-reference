@@ -1,4 +1,6 @@
+import { motion } from 'framer-motion'
 import { t } from '../lib/ui.js'
+import { useReveal } from '../hooks/useReveal.js'
 import Markdown from './Markdown.jsx'
 import { AlertIcon, InfoIcon, PenIcon } from './Icons.jsx'
 
@@ -27,25 +29,39 @@ const styles = {
   },
 }
 
+// Very soft, high-blur ambient shadow at 5% opacity: lifts the card a little
+// off the page with no visible hard edge. Never `shadow-inner` — an inset
+// shadow makes a callout look like a disabled input well.
+const SOFT_SHADOW = 'shadow-[0_8px_30px_rgba(0,0,0,0.05)]'
+
 export default function Callout({ callout, lang }) {
   if (!callout) return null
   const text = callout[lang] ?? callout.en
   const type = callout.type || 'tip'
+  // Callouts trail their section's prose and figure, so a small fixed delay
+  // lets them settle in just after the rest of the section — a light stagger.
+  const reveal = useReveal(0.1)
 
   if (type === 'quote') {
     return (
-      <blockquote className="callout my-4 border-s-2 border-accent ps-3">
+      <motion.blockquote
+        data-reveal
+        {...reveal}
+        className="callout my-4 border-s-2 border-accent ps-3"
+      >
         <Markdown className="text-lg italic leading-[30px] text-ink [&_p]:text-lg [&_p]:leading-[30px]">{text}</Markdown>
-      </blockquote>
+      </motion.blockquote>
     )
   }
 
   const style = styles[type] ?? styles.tip
   const { Icon } = style
   return (
-    <aside
+    <motion.aside
+      data-reveal
+      {...reveal}
       data-callout={type}
-      className={`callout my-4 flex gap-1.5 rounded-lg border p-2 text-ink ${style.box}`}
+      className={`callout my-4 flex gap-1.5 rounded-lg border p-2 text-ink ${style.box} ${SOFT_SHADOW}`}
     >
       <Icon className={`mt-0.5 shrink-0 ${style.icon}`} />
       <div>
@@ -54,6 +70,6 @@ export default function Callout({ callout, lang }) {
         </p>
         <Markdown className="mt-0.5">{text}</Markdown>
       </div>
-    </aside>
+    </motion.aside>
   )
 }
